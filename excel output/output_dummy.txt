@@ -1,0 +1,1 @@
+This folder will contain all of the output data once it is run. Note that the output data will be overwritten each time.
