@@ -7,21 +7,21 @@ import pandas as pd
 import spending as spending
 import demographics as dem
 
+# source folders
+# TODO edit before running: repo_path = "path/to/exiobase/data/on/your/computer" + "/"
+save_folder_name = "full data"
+excel_folder_name = "excel output/" # this folder must exist in the source folder before it is saved to, and data there will be overwritten each time
+concordance_name = "EXIOBASE20p_7sectors.txt" # this should exist as a file in the source folder, it's available from https://ntnu.app.box.com/v/EXIOBASEconcordances
+
 def load_data():
 	try:
-		return pymrio.load_all(path=(source_folder_path + save_folder_name))
+		return pymrio.load_all(path=(repo_path + save_folder_name))
 	except pymrio.core.fileio.ReadError:
 		print('making new saved data')
-		source_data = pymrio.parse_exiobase3(path=(source_folder_path + "original data"))
+		source_data = pymrio.parse_exiobase3(path=(repo_path + "original data"))
 		data = source_data.calc_all()
-		data.save_all(path=(source_folder_path + save_folder_name))
+		data.save_all(path=(repo_path + save_folder_name))
 		return data
-
-def load_old_data():
-	try:
-		return pymrio.load_all(path=(source_folder_path + old_save))
-	except pymrio.core.fileio.ReadError:
-		print('error 2345')
 
 def remove_exports_and_changes_in_inventories_and_valuables(data:pymrio.IOSystem):
 	new_data = data.copy()
@@ -85,7 +85,7 @@ def labour_by_category():
 		labour_by_category.columns = [scenario[0]]
 		breakdown_list.append(labour_by_category)
 	breakdown_data = pd.concat(breakdown_list, axis=1)
-	breakdown_data.to_excel(source_folder_path + excel_folder_name + "labour_by_category.xlsx")
+	breakdown_data.to_excel(repo_path + excel_folder_name + "labour_by_category.xlsx")
 
 def labour_by_loc():
 	breakdown_list = []
@@ -105,7 +105,7 @@ def labour_by_loc():
 		labour_by_loc *= 1000000/(dem.total_population[scenario[3]]*dem.working_age_ratio[scenario[3]]*employment_during_working_age)/weeks_per_year
 		breakdown_list.append(labour_by_loc)
 	breakdown_data = pd.concat(breakdown_list, axis=1)
-	breakdown_data.to_excel(source_folder_path + excel_folder_name + "labour_by_loc.xlsx")
+	breakdown_data.to_excel(repo_path + excel_folder_name + "labour_by_loc.xlsx")
 
 def labour_by_sector():
 	breakdown_list = []
@@ -126,7 +126,7 @@ def labour_by_sector():
 		labour_by_sector.name = scenario[0]
 		breakdown_list.append(labour_by_sector)
 	breakdown_data = pd.concat(breakdown_list, axis=1)
-	breakdown_data.to_excel(source_folder_path + excel_folder_name + "labour_by_sector.xlsx")
+	breakdown_data.to_excel(repo_path + excel_folder_name + "labour_by_sector.xlsx")
 
 def labour_by_skill():
 	breakdown_list = []
@@ -151,7 +151,7 @@ def labour_by_skill():
 		# labour_by_skill.columns = [scenario[0]]
 		breakdown_list.append(labour_by_skill)
 	breakdown_data = pd.concat(breakdown_list, axis=1)
-	breakdown_data.to_excel(source_folder_path + excel_folder_name + "labour_by_skill.xlsx")
+	breakdown_data.to_excel(repo_path + excel_folder_name + "labour_by_skill.xlsx")
 
 def energy_by_loc():
 	breakdown_list = []
@@ -179,7 +179,7 @@ def energy_by_loc():
 		energy_by_loc *= 1000/(dem.total_population[scenario[3]])
 		breakdown_list.append(energy_by_loc)
 	breakdown_data = pd.concat(breakdown_list, axis=1)
-	breakdown_data.to_excel(source_folder_path + excel_folder_name + "energy_by_loc.xlsx")
+	breakdown_data.to_excel(repo_path + excel_folder_name + "energy_by_loc.xlsx")
 
 def get_AR5_emissions(df):
 	# made to match "GHG emissions AR5 (GWP100) | GWP100 (IPCC, 2010)" vector in EXIOBASE 3.8.2
@@ -242,7 +242,7 @@ def emissions_by_loc():
 		emissions_by_loc /= 1000*(dem.total_population[scenario[3]])
 		breakdown_list.append(emissions_by_loc)
 	breakdown_data = pd.concat(breakdown_list, axis=1)
-	breakdown_data.to_excel(source_folder_path + excel_folder_name + "emissions_by_loc.xlsx")
+	breakdown_data.to_excel(repo_path + excel_folder_name + "emissions_by_loc.xlsx")
 
 def extraction_by_loc():
 	breakdown_list = []
@@ -270,7 +270,7 @@ def extraction_by_loc():
 		extraction_by_loc *= 1000/(dem.total_population[scenario[3]])
 		breakdown_list.append(extraction_by_loc)
 	breakdown_data = pd.concat(breakdown_list, axis=1)
-	breakdown_data.to_excel(source_folder_path + excel_folder_name + "materials_by_loc.xlsx")
+	breakdown_data.to_excel(repo_path + excel_folder_name + "materials_by_loc.xlsx")
 
 def total_domestic_labour():
 	breakdown_list = []
@@ -280,8 +280,7 @@ def total_domestic_labour():
 		total_hours *= 1000000/(dem.total_population[scenario[3]]*dem.working_age_ratio[scenario[3]]*employment_during_working_age)/weeks_per_year
 		breakdown_list.append(total_hours)
 	breakdown_data = pd.DataFrame(breakdown_list, index=[item[0] for item in main_scenarios[1:5]])
-	breakdown_data.to_excel(source_folder_path + excel_folder_name + "total_domestic_labour.xlsx")
-
+	breakdown_data.to_excel(repo_path + excel_folder_name + "total_domestic_labour.xlsx")
 
 # formatting
 idx = pd.IndexSlice
@@ -291,12 +290,6 @@ pd.set_option("display.min_rows", 15)
 pd.set_option("display.max_colwidth", 25)
 pd.set_option("expand_frame_repr", False)
 pd.set_option("display.width", 170)
-
-# source folders
-# TODO edit before running: source_folder_path = "path/to/exiobase/data/on/your/computer"
-save_folder_name = "full data"
-excel_folder_name = "excel output/" # this folder must exist in the source folder before it is saved to
-concordance_name = "EXIOBASE20p_7sectors.txt" # this should exist as a file in the source folder, it's available from https://ntnu.app.box.com/v/EXIOBASEconcordances
 
 # weeks per year number is exactly 365.2425 / 7
 # weeks off per year from https://www.gov.uk/holiday-entitlement-rights
@@ -324,7 +317,7 @@ main_scenarios = [
 ]
 
 # sector conversion
-simple_sectors = pd.read_csv((source_folder_path + concordance_name), sep="\t", header=0, index_col=0)
+simple_sectors = pd.read_csv((repo_path + concordance_name), sep="\t", header=0, index_col=0)
 simple_sectors.index = gdc_2019.get_sectors()
 
 employment_hours_M = gdc_2019.employment.M.loc['Employment hours: High-skilled female':'Employment hours: Medium-skilled male'].sum()
